@@ -37,20 +37,28 @@
 
   // ---------- Layout ----------
   function computeLayout() {
-    const rect = gameContainer.getBoundingClientRect();
-    const W = Math.round(rect.width);
+    const parentEl = gameContainer.parentElement;
+    if (!parentEl) return;
+    
+    // Берем ширину родителя (чтобы не зависеть от уже заданной фикс. ширины)
+    const W = Math.round(parentEl.clientWidth);
     if (!W) return;
 
     const pad  = Math.max(6, Math.round(W * 0.02));
     const gap  = Math.max(6, Math.round(W * 0.02));
-    const cell = (W - 2 * pad - 3 * gap) / 4;
+    // Округляем вниз до целого, чтобы избежать субпикселей
+    const cell = Math.max(1, Math.floor((W - 2 * pad - 3 * gap) / 4));
+
+    // Точная ширина поля с учетом всех отступов
+    const boardW = 2 * pad + 4 * cell + 3 * gap;
+
+    // Фиксируем размеры контейнера
+    gameContainer.style.width = boardW + 'px';
+    gameContainer.style.height = boardW + 'px';
 
     gameContainer.style.setProperty('--pad',  pad  + 'px');
     gameContainer.style.setProperty('--gap',  gap  + 'px');
     gameContainer.style.setProperty('--cell', cell + 'px');
-
-    // Явная высота = ширина → идеальный квадрат без aspect-ratio
-    gameContainer.style.height = W + 'px';
   }
 
   function positionTileElement(el, row, col) {
@@ -112,7 +120,7 @@
     }
   }
 
-  // ---------- Move computation (chain merge per ТЗ) ----------
+  // ---------- Move computation ----------
   function getLines(direction) {
     const lines = [];
     if (direction === 'left' || direction === 'right') {
@@ -147,7 +155,6 @@
         if (srcBoard[r][c] !== 0) items.push({ r, c, v: srcBoard[r][c] });
       }
 
-      // Стек с цепным слиянием: [4,4,4,4] → [16], [2,2,2,2] → [8]
       const stack = [];
       for (const it of items) {
         stack.push({ value: it.v, sources: [{ r: it.r, c: it.c }] });
@@ -257,7 +264,7 @@
   }
 
   function spawnTiles() {
-    const count = Math.random() < 0.9 ? 1 : 2; // 1–2 плитки
+    const count = Math.random() < 0.9 ? 1 : 2;
     for (let i = 0; i < count; i++) {
       if (!spawnOneTile({ isNew: true })) break;
     }
@@ -298,7 +305,7 @@
     updateScoreUI();
     hideGameOver();
 
-    const initialCount = 1 + Math.floor(Math.random() * 3); // 1–3 плитки
+    const initialCount = 1 + Math.floor(Math.random() * 3);
     for (let i = 0; i < initialCount; i++) {
       spawnOneTile({ isNew: true });
     }
@@ -345,7 +352,7 @@
         board, score, gameOver, best, recordSaved,
       }));
       localStorage.setItem(STORAGE_BEST, String(best));
-    } catch (e) { /* ignore */ }
+    } catch (e) {}
   }
 
   function loadState() {
@@ -549,7 +556,7 @@
         computeLayout();
         Object.values(viewTiles).forEach((t) =>
           positionTileElement(t.el, t.row, t.col));
-      }).observe(gameContainer);
+      }).observe(gameContainer.parentElement);
     }
   }
 
