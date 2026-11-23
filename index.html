@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>2048</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1 class="title">2048</h1>
+      <div class="scores">
+        <div class="score-box">
+          <div class="score-label">Очки</div>
+          <div class="score-value" id="score">0</div>
+        </div>
+        <div class="score-box">
+          <div class="score-label">Рекорд</div>
+          <div class="score-value" id="best">0</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <button class="btn" id="new-game">Новая игра</button>
+      <button class="btn" id="undo">Отменить ход</button>
+      <button class="btn" id="leaders">Лидеры</button>
+    </div>
+
+    <div class="game-container" id="game-container">
+      <div class="grid-bg" id="grid-bg"></div>
+      <div class="tiles-layer" id="tiles-layer"></div>
+
+      <div class="game-over" id="game-over" hidden>
+        <div class="game-over-content">
+          <h2 id="game-over-title">Игра окончена!</h2>
+          <p class="final-score">Ваш счёт: <strong id="final-score">0</strong></p>
+          <div class="save-form" id="save-form">
+            <input type="text" id="player-name" placeholder="Введите имя" maxlength="20" autocomplete="off">
+            <button class="btn btn-primary" id="save-record">Сохранить результат</button>
+          </div>
+          <p class="saved-message" id="saved-message" hidden>Ваш рекорд сохранён!</p>
+          <button class="btn" id="restart-overlay">Начать заново</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-controls" id="mobile-controls">
+      <button class="ctrl-btn" data-dir="up" aria-label="Вверх">▲</button>
+      <div class="ctrl-row">
+        <button class="ctrl-btn" data-dir="left" aria-label="Влево">◀</button>
+        <button class="ctrl-btn" data-dir="down" aria-label="Вниз">▼</button>
+        <button class="ctrl-btn" data-dir="right" aria-label="Вправо">▶</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="leaders-modal" hidden>
+    <div class="modal-content">
+      <h2>Таблица лидеров (топ-10)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>#</th><th>Имя</th><th>Очки</th><th>Дата</th></tr>
+          </thead>
+          <tbody id="leaders-body"></tbody>
+        </table>
+      </div>
+      <p class="empty-message" id="empty-message" hidden>Пока нет рекордов</p>
+      <button class="btn" id="close-leaders">Закрыть</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
