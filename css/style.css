@@ -21,7 +21,7 @@ body {
   gap: 14px;
 }
 
-/* Header */
+/* ---------- Header ---------- */
 .header {
   display: flex;
   justify-content: space-between;
@@ -52,7 +52,7 @@ body {
 }
 .score-value { font-size: 22px; font-weight: 700; }
 
-/* Toolbar */
+/* ---------- Toolbar ---------- */
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn {
   padding: 10px 16px;
@@ -71,14 +71,16 @@ body {
 .btn-primary { background: #f67c5f; }
 .btn-primary:hover { background: #f67c5f; filter: brightness(1.05); }
 
-/* Game board */
+/* ---------- Game board ---------- */
 .game-container {
   position: relative;
   width: 100%;
-  aspect-ratio: 1;
+  /* height задаётся из JS (computeLayout), чтобы не зависеть от quirk'ов aspect-ratio */
   background: #bbada0;
   border-radius: 8px;
   padding: var(--pad, 10px);
+  box-sizing: border-box;
+  overflow: hidden;
   touch-action: none;
 }
 
@@ -97,7 +99,7 @@ body {
 
 .tiles-layer {
   position: absolute;
-  inset: var(--pad, 10px);
+  inset: 0;
   pointer-events: none;
 }
 
@@ -115,6 +117,7 @@ body {
   background: #eee4da;
   color: #776e65;
   will-change: left, top;
+  line-height: 1;
 }
 
 .tile[data-value="2"]    { background: #eee4da; color: #776e65; }
@@ -138,7 +141,7 @@ body {
   font-size: calc(var(--cell, 60px) * 0.16);
 }
 
-/* Animations */
+/* ---------- Animations ---------- */
 .tile-new    { animation: pop-in 0.18s ease; }
 .tile-merged { animation: pop-merge 0.18s ease; z-index: 2; }
 
@@ -152,7 +155,7 @@ body {
   100% { transform: scale(1); }
 }
 
-/* Game over overlay */
+/* ---------- Game over overlay ---------- */
 .game-over {
   position: absolute;
   inset: 0;
@@ -197,7 +200,7 @@ body {
 }
 .saved-message[hidden] { display: none; }
 
-/* Mobile controls */
+/* ---------- Mobile controls ---------- */
 .mobile-controls {
   display: none;
   flex-direction: column;
@@ -218,6 +221,7 @@ body {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  font-family: inherit;
 }
 .ctrl-btn:active { background: #7f6a56; }
 
@@ -230,7 +234,7 @@ body {
   .btn { flex: 1 1 auto; text-align: center; }
 }
 
-/* Modal (leaders) */
+/* ---------- Modal (leaders) ---------- */
 .modal {
   position: fixed;
   inset: 0;

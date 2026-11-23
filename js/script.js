@@ -8,15 +8,15 @@
   const ANIM_MS = 170;
 
   // ---------- State ----------
-  let board = [];              // 4x4 values (0 = empty)
+  let board = [];
   let score = 0;
   let best = 0;
-  let history = [];            // [{board, score}]
+  let history = [];
   let gameOver = false;
   let animating = false;
   let recordSaved = false;
   let tileIdCounter = 0;
-  const viewTiles = {};        // id -> {id, value, row, col, el}
+  const viewTiles = {};
 
   // ---------- DOM ----------
   const $ = (id) => document.getElementById(id);
@@ -37,19 +37,25 @@
 
   // ---------- Layout ----------
   function computeLayout() {
-    const width = gameContainer.clientWidth;
-    if (!width) return;
-    const pad  = Math.max(6, Math.round(width * 0.02));
-    const gap  = Math.max(6, Math.round(width * 0.02));
-    const cell = (width - 2 * pad - 3 * gap) / 4;
+    const rect = gameContainer.getBoundingClientRect();
+    const W = Math.round(rect.width);
+    if (!W) return;
+
+    const pad  = Math.max(6, Math.round(W * 0.02));
+    const gap  = Math.max(6, Math.round(W * 0.02));
+    const cell = (W - 2 * pad - 3 * gap) / 4;
+
     gameContainer.style.setProperty('--pad',  pad  + 'px');
     gameContainer.style.setProperty('--gap',  gap  + 'px');
     gameContainer.style.setProperty('--cell', cell + 'px');
+
+    // Явная высота = ширина → идеальный квадрат без aspect-ratio
+    gameContainer.style.height = W + 'px';
   }
 
   function positionTileElement(el, row, col) {
-    el.style.left = `calc((var(--cell, 60px) + var(--gap, 10px)) * ${col})`;
-    el.style.top  = `calc((var(--cell, 60px) + var(--gap, 10px)) * ${row})`;
+    el.style.left = `calc(var(--pad, 10px) + (var(--cell, 60px) + var(--gap, 10px)) * ${col})`;
+    el.style.top  = `calc(var(--pad, 10px) + (var(--cell, 60px) + var(--gap, 10px)) * ${row})`;
   }
 
   // ---------- Tiles ----------
@@ -129,8 +135,8 @@
 
   function computeMove(srcBoard, direction) {
     const newBoard = srcBoard.map((row) => row.slice());
-    const moves = [];    // {fromR, fromC, toR, toC}
-    const merges = [];   // {toR, toC, value, sources}
+    const moves = [];
+    const merges = [];
     let scoreGained = 0;
 
     const lines = getLines(direction);
@@ -141,7 +147,7 @@
         if (srcBoard[r][c] !== 0) items.push({ r, c, v: srcBoard[r][c] });
       }
 
-      // Stack с цепным слиянием
+      // Стек с цепным слиянием: [4,4,4,4] → [16], [2,2,2,2] → [8]
       const stack = [];
       for (const it of items) {
         stack.push({ value: it.v, sources: [{ r: it.r, c: it.c }] });
@@ -194,13 +200,11 @@
 
     animating = true;
 
-    // карта tile по исходным позициям
     const tileByPos = {};
     Object.values(viewTiles).forEach((t) => {
       tileByPos[t.row + ',' + t.col] = t;
     });
 
-    // Анимация перемещений
     for (const mv of result.moves) {
       const t = tileByPos[mv.fromR + ',' + mv.fromC];
       if (t) {
@@ -211,7 +215,6 @@
     }
 
     setTimeout(() => {
-      // Удаляем исходные плитки, участвующие в слияниях
       const toRemove = new Set();
       for (const mg of result.merges) {
         for (const src of mg.sources) {
@@ -221,22 +224,17 @@
       }
       toRemove.forEach(removeTile);
 
-      // Обновляем board
       board = result.newBoard.map((r) => r.slice());
 
-      // Создаём слитые плитки
       for (const mg of result.merges) {
         createTile(mg.toR, mg.toC, mg.value, { isMerged: true });
       }
 
-      // Очки
       score += result.scoreGained;
       updateScoreUI();
 
-      // Новые плитки
       spawnTiles();
 
-      // Проверка конца игры
       if (!canMove(board)) {
         gameOver = true;
         showGameOver();
@@ -536,7 +534,6 @@
 
     if (gameOver) showGameOver();
 
-    // Resize
     let rafId = 0;
     window.addEventListener('resize', () => {
       cancelAnimationFrame(rafId);
